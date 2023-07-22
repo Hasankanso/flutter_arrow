@@ -1,16 +1,6 @@
-# arrows
+# Flutter Arrows
 
-A new Flutter project.
+[Watch Challenge Explanation](https://youtu.be/y2Whr1YSvfg)
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The task is to create arrows between connected items on the grid as shown in the picture. <br>
+![image](https://github.com/Hasankanso/flutter_arrow/assets/42151674/8af325a8-41ff-4352-8d9e-ed9e29ff1d5c)
