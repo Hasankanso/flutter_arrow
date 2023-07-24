@@ -1,6 +1,10 @@
-import 'package:arrows/bottom_bar.dart';
-import 'package:arrows/field.dart';
 import 'package:flutter/material.dart';
+
+import 'bottom_bar.dart';
+import 'field.dart';
+
+import 'models/arrow_model.dart';
+import 'painter/arrow_paint.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,21 +37,55 @@ class GridWidget extends StatefulWidget {
 class _GridWidgetState extends State<GridWidget> {
   GridController controller = GridController();
 
+  List<TwoArrowsData> arrowsList = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: const Text("Arrow Challenge"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.leak_remove_sharp, color: Colors.red),
+              onPressed: () {
+                onPressed(Items.deleteArrow);
+              },
+            )
+          ],
         ),
-        body: GridView.count(
-          crossAxisCount: 5,
-          children: List.generate(controller.gridSize, (index) {
-            return FieldWidget(
-              index: index,
-              gridController: controller,
-            );
-          }),
+        body: Stack(
+          children: [
+            GridView.count(
+              crossAxisCount: 5,
+              children: List.generate(controller.gridSize, (index) {
+                return FieldWidget(
+                  index: index,
+                  gridController: controller,
+                  createArrow: (value) {  // On Arrow Created
+                    arrowsList.add(TwoArrowsData(
+                        arrowFrom: controller.arrowStart!,
+                        arrowTo: controller.arrowEnd!));
+                    setState(() {});
+                  },
+                  removeArrow: (bool value) {// On Arrow Removed 
+                    arrowsList.removeWhere((element) =>
+                        element.arrowFrom.arrowIndex ==
+                            controller.arrowStart!.arrowIndex &&
+                        element.arrowTo.arrowIndex ==
+                            controller.arrowEnd!.arrowIndex);
+                    setState(() {});
+                  },
+                );
+              }),
+            ),
+            for (var item in arrowsList)
+              CustomPaint(
+                  painter: ArrowPainter(
+                      item.arrowFrom.arrowOffset!, item.arrowTo.arrowOffset!))
+
+            //if (arrowStart != null && arrowEnd != null)
+          ],
         ),
         floatingActionButton: BottomBar(
           onPressed: onPressed,
@@ -67,13 +105,13 @@ class GridController {
   Items? bottomBarState;
 
   //index of source field
-  int? arrowStart;
+  ArrowData? arrowStart;
 
   //index of the target field
-  int? arrowEnd;
+  ArrowData? arrowEnd;
 
   //user to notify source field of arrow creation completion
-  Function(int targetField)? onArrowCreated;
+  Function(ArrowData targetField)? onArrowCreated;
 
   void resetArrowCreating() {
     arrowStart = null;
@@ -82,3 +120,7 @@ class GridController {
     onArrowCreated = null;
   }
 }
+
+
+
+

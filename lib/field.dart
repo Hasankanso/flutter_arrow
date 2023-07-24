@@ -1,15 +1,24 @@
+import 'dart:ffi';
 import 'dart:math';
 
-import 'package:arrows/bottom_bar.dart';
-import 'package:arrows/main.dart';
 import 'package:flutter/material.dart';
+
+import 'bottom_bar.dart';
+import 'main.dart';
+import 'models/arrow_model.dart';
 
 class FieldWidget extends StatefulWidget {
   final int index;
   final GridController gridController;
+  final ValueChanged<bool> createArrow;
+  final ValueChanged<bool> removeArrow;
 
   const FieldWidget(
-      {super.key, required this.gridController, required this.index});
+      {super.key,
+      required this.gridController,
+      required this.index,
+      required this.createArrow,
+      required this.removeArrow});
 
   @override
   State<FieldWidget> createState() => _FieldWidgetState();
@@ -17,8 +26,8 @@ class FieldWidget extends StatefulWidget {
 
 class _FieldWidgetState extends State<FieldWidget> {
   Color color = Colors.white;
-  List<int> outgoingArrows = [];
-  List<int> incomingArrows = [];
+  List<ArrowData> outgoingArrows = [];
+  List<ArrowData> incomingArrows = [];
 
   @override
   void initState() {
@@ -26,7 +35,7 @@ class _FieldWidgetState extends State<FieldWidget> {
     super.initState();
   }
 
-  void onTargetFieldSelected(int targetField) {
+  void onTargetFieldSelected(ArrowData targetField) {
     outgoingArrows.add(targetField);
   }
 
@@ -35,36 +44,51 @@ class _FieldWidgetState extends State<FieldWidget> {
     return "FieldWidget ${widget.index}, outgoingArrows: $outgoingArrows, incomingArrows: $incomingArrows";
   }
 
+  final GlobalKey _globalKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     var controller = widget.gridController;
-    return GestureDetector(
+    return InkWell(
+      key: _globalKey,
       onTap: () {
         if (controller.bottomBarState == null) return;
+
+        RenderBox box =
+            _globalKey.currentContext!.findRenderObject() as RenderBox;
+        Offset position =
+            box.localToGlobal(const Offset(35, -50)); //TODO Arrow Postion
+
+        ArrowData currentIndexData =
+            ArrowData(arrowIndex: widget.index, arrowOffset: position);
 
         switch (controller.bottomBarState!) {
           case Items.arrow:
             if (controller.creatingArrow) {
-              controller.arrowEnd = widget.index;
+              // Edit Essam Get Offset
+
+              controller.arrowEnd = currentIndexData;
 
               assert(controller.arrowStart != null);
-              assert(controller.onArrowCreated != null);
+              assert(controller.onArrowCreated != null); // Remove it
 
               // make sure the arrow is not already created
               if (!incomingArrows.contains(controller.arrowStart)) {
                 incomingArrows.add(controller.arrowStart!);
 
                 print(
-                    "Arrow created from ${controller.arrowStart} to ${controller.arrowEnd}");
-                //inform the source field of the arrow creation.
-                controller.onArrowCreated!(widget.index);
+                    "Arrow created from ${controller.arrowStart?.arrowIndex} to ${controller.arrowEnd?.arrowIndex}");
+
+                controller.onArrowCreated!(currentIndexData); // Remove it
+                widget.createArrow(true);
               }
+
               //at this point the arrow is created and the controller is reset
               controller.resetArrowCreating();
             } else {
               //this is the entry point when the arrow creation starts
-              controller.arrowStart = widget.index;
-              controller.onArrowCreated = onTargetFieldSelected;
+              controller.arrowStart = currentIndexData;
+              controller.onArrowCreated = onTargetFieldSelected; // Remove it
               controller.creatingArrow = true;
             }
             break;
@@ -77,6 +101,21 @@ class _FieldWidgetState extends State<FieldWidget> {
             break;
           case Items.inspect:
             print(toStringShort());
+            break;
+          case Items.deleteArrow:
+            if (controller.arrowStart != null) {
+              controller.arrowEnd = currentIndexData;
+              print(
+                  "Arrow Rmoved from ${controller.arrowStart?.arrowIndex} to ${controller.arrowEnd?.arrowIndex}");
+
+              widget.removeArrow(true);
+
+              //at this point the arrow is Removed and the controller is reset
+              controller.resetArrowCreating();
+            } else {
+              //this is the entry point when the arrow Remove starts
+              controller.arrowStart = currentIndexData;
+            }
             break;
         }
         setState(() {});
