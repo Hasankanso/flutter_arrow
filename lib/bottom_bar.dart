@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum Items { item, arrow, delete, inspect }
+enum Items { item, arrow, delete, inspect, deleteArrow }
 
 class BottomBar extends StatelessWidget {
   final Function(Items pressedItem) onPressed;
