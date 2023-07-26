@@ -41,55 +41,62 @@ class _GridWidgetState extends State<GridWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text("Arrow Challenge"),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.leak_remove_sharp, color: Colors.red),
-              onPressed: () {
-                onPressed(Items.deleteArrow);
-              },
-            )
-          ],
-        ),
-        body: Stack(
-          children: [
-            GridView.count(
-              crossAxisCount: 5,
-              children: List.generate(controller.gridSize, (index) {
-                return FieldWidget(
-                  index: index,
-                  gridController: controller,
-                  createArrow: (value) {  // On Arrow Created
-                    arrowsList.add(TwoArrowsData(
-                        arrowFrom: controller.arrowStart!,
-                        arrowTo: controller.arrowEnd!));
-                    setState(() {});
+    return Stack(
+      children: [
+        Scaffold(
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: const Text("Arrow Challenge"),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.leak_remove_sharp, color: Colors.red),
+                  onPressed: () {
+                    onPressed(Items.deleteArrow);
                   },
-                  removeArrow: (bool value) {// On Arrow Removed 
-                    arrowsList.removeWhere((element) =>
-                        element.arrowFrom.arrowIndex ==
-                            controller.arrowStart!.arrowIndex &&
-                        element.arrowTo.arrowIndex ==
-                            controller.arrowEnd!.arrowIndex);
-                    setState(() {});
-                  },
-                );
-              }),
+                )
+              ],
             ),
-            for (var item in arrowsList)
-              CustomPaint(
-                  painter: ArrowPainter(
-                      item.arrowFrom.arrowOffset!, item.arrowTo.arrowOffset!))
-
-            //if (arrowStart != null && arrowEnd != null)
-          ],
-        ),
-        floatingActionButton: BottomBar(
-          onPressed: onPressed,
-        ));
+            body: Column(
+              children: [
+                Expanded(
+                  flex: 8,
+                  child: GridView.count(
+                    crossAxisCount: 5,
+                    children: List.generate(controller.gridSize, (index) {
+                      return FieldWidget(
+                        index: index,
+                        gridController: controller,
+                        createArrow: (value) {
+                          // On Arrow Created
+                          arrowsList.add(TwoArrowsData(
+                              arrowFrom: controller.arrowStart!,
+                              arrowTo: controller.arrowEnd!));
+                          setState(() {});
+                        },
+                        removeArrow: (bool value) {
+                          // On Arrow Removed
+                          arrowsList.removeWhere((element) =>
+                              element.arrowFrom.arrowIndex ==
+                                  controller.arrowStart!.arrowIndex &&
+                              element.arrowTo.arrowIndex ==
+                                  controller.arrowEnd!.arrowIndex);
+                          setState(() {});
+                        },
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+            floatingActionButton: BottomBar(
+              onPressed: onPressed,
+            )),
+        for (var item in arrowsList)
+          CustomPaint(
+              painter: ArrowPainter(
+                  item.arrowFrom.arrowOffset!, item.arrowTo.arrowOffset!)),
+      ],
+    );
   }
 
   void onPressed(Items pressedItem) {
@@ -120,7 +127,3 @@ class GridController {
     onArrowCreated = null;
   }
 }
-
-
-
-

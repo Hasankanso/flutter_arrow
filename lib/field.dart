@@ -57,8 +57,8 @@ class _FieldWidgetState extends State<FieldWidget> {
         RenderBox box =
             _globalKey.currentContext!.findRenderObject() as RenderBox;
         Offset position =
-            box.localToGlobal(const Offset(35, -50)); //TODO Arrow Postion
-
+            box.localToGlobal(Offset(box.size.width / 2, box.size.height / 2));
+        print(position);
         ArrowData currentIndexData =
             ArrowData(arrowIndex: widget.index, arrowOffset: position);
 
@@ -79,7 +79,7 @@ class _FieldWidgetState extends State<FieldWidget> {
                 print(
                     "Arrow created from ${controller.arrowStart?.arrowIndex} to ${controller.arrowEnd?.arrowIndex}");
 
-                controller.onArrowCreated!(currentIndexData); // Remove it
+                controller.onArrowCreated!(currentIndexData);
                 widget.createArrow(true);
               }
 
@@ -88,7 +88,7 @@ class _FieldWidgetState extends State<FieldWidget> {
             } else {
               //this is the entry point when the arrow creation starts
               controller.arrowStart = currentIndexData;
-              controller.onArrowCreated = onTargetFieldSelected; // Remove it
+              controller.onArrowCreated = onTargetFieldSelected;
               controller.creatingArrow = true;
             }
             break;
