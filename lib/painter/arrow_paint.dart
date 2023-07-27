@@ -18,11 +18,11 @@ class ArrowPainter extends CustomPainter {
       ..color = Colors.black
       ..strokeWidth = 2;
 
-    canvas.drawLine(p1, p2, paint);
-
     final dX = p2.dx - p1.dx;
     final dY = p2.dy - p1.dy;
     final angle = math.atan2(dY, dX);
+
+    canvas.drawLine(p1, p2, paint);
 
     final path = Path();
 

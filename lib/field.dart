@@ -1,11 +1,9 @@
-import 'dart:ffi';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
 import 'bottom_bar.dart';
 import 'main.dart';
 import 'models/arrow_model.dart';
+import 'dart:math' as math;
 
 class FieldWidget extends StatefulWidget {
   final int index;
@@ -28,11 +26,16 @@ class _FieldWidgetState extends State<FieldWidget> {
   Color color = Colors.white;
   List<ArrowData> outgoingArrows = [];
   List<ArrowData> incomingArrows = [];
+  late final RenderBox box;
 
   @override
   void initState() {
     color = Color.fromARGB(255, Random().nextInt(80) + 30, 255, 205);
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      box = _globalKey.currentContext!.findRenderObject() as RenderBox;
+    });
   }
 
   void onTargetFieldSelected(ArrowData targetField) {
@@ -54,10 +57,8 @@ class _FieldWidgetState extends State<FieldWidget> {
       onTap: () {
         if (controller.bottomBarState == null) return;
 
-        RenderBox box =
-            _globalKey.currentContext!.findRenderObject() as RenderBox;
-        Offset position =
-            box.localToGlobal(Offset(box.size.width / 2, box.size.height / 2));
+        Offset position = box.localToGlobal(Offset.zero);
+
         print(position);
         ArrowData currentIndexData =
             ArrowData(arrowIndex: widget.index, arrowOffset: position);
@@ -78,6 +79,32 @@ class _FieldWidgetState extends State<FieldWidget> {
 
                 print(
                     "Arrow created from ${controller.arrowStart?.arrowIndex} to ${controller.arrowEnd?.arrowIndex}");
+
+                Offset p1 = controller.arrowStart!.arrowOffset!;
+                Offset p2 = controller.arrowEnd!.arrowOffset!;
+
+                final dX = p2.dx - p1.dx;
+                final dY = p2.dy - p1.dy;
+                final angle = math.atan2(dY, dX);
+                final width = box.size.width;
+                final height = box.size.height;
+
+                var pos1X = p1.dx + (width / 2) + math.cos(angle) * (width / 5);
+
+                var pos1Y =
+                    p1.dy + (height / 2) + math.sin(angle) * (height / 5);
+
+                var pos2X = p2.dx + (width / 2) - math.cos(angle) * (width / 5);
+                var pos2Y =
+                    p2.dy + (height / 2) - math.sin(angle) * (height / 5);
+
+                controller.arrowStart = ArrowData(
+                    arrowIndex: controller.arrowStart!.arrowIndex,
+                    arrowOffset: Offset(pos1X, pos1Y));
+
+                controller.arrowEnd = ArrowData(
+                    arrowIndex: controller.arrowEnd!.arrowIndex,
+                    arrowOffset: Offset(pos2X, pos2Y));
 
                 controller.onArrowCreated!(currentIndexData);
                 widget.createArrow(true);
